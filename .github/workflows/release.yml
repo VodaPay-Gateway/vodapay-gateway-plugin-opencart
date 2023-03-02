@@ -7,7 +7,7 @@ on:
     branches: [ "fix/fix-release.yaml" ]
 
 permissions:
-  contents: read
+  contents: write-all
 
 jobs:
   pre-release:
