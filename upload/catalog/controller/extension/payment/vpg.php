@@ -158,8 +158,6 @@ class ControllerExtensionPaymentVPG extends Controller{
         return $basketItems;
     }
     
-    //Some Instant Update variables set up the Cart Upload to use your callback server. Include the following required variables in the Cart Upload command to have PayPal send Instant Update requests to your callback server.
-    //It means the Paypal will call this URL and update the order status in the database of the website.
     public function callback()
     {
         $this->load->language('extension/payment/vpg');
