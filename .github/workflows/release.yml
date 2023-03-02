@@ -10,10 +10,10 @@ permissions:
   contents: read
 
 jobs:
-   release:
-    name: "Release"
-
-    runs-on: ubuntu-latest
+  pre-release:
+    name: "Pre Release"
+    
+    runs-on: "ubuntu-latest"
 
     steps:
     - uses: actions/checkout@v3
@@ -30,10 +30,12 @@ jobs:
       with:
         args: zip -qq -r vodapay-gatewat.ocmod.zip upload
 
-    - name: create release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.github_token }}
+    - name: Create Pre Release
+      uses: "marvinpinto/action-automatic-releases@latest"
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Development Build"
+        files: |
+            vodapay-gatewat.ocmod.zip
