@@ -34,6 +34,6 @@ jobs:
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.github_token }}
-        with:
-          tag_name: 'v*
-          release_name: Release 'v*
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
