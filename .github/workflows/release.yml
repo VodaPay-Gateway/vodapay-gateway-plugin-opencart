@@ -21,6 +21,8 @@ jobs:
     - name: Install dependencies
       working-directory: ./upload/system/library/vpg
       run: composer install --prefer-dist --no-progress
+      env:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
       
     - name: Zipping plugin
       uses: montudor/action-zip@v1
