@@ -6,8 +6,7 @@ on:
   pull_request:
     branches: [ "fix/fix-release.yaml" ]
 
-permissions:
-  contents: write-all
+permissions: write-all
 
 jobs:
   pre-release:
