@@ -2,9 +2,9 @@ name: PHP Plugin Release
 
 on:
   push:
-    branches: [ "fix/fix-release.yaml" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "fix/fix-release.yaml" ]
+    branches: [ "main" ]
 
 permissions: write-all
 
