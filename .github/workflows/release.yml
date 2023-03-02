@@ -5,6 +5,8 @@ on:
     branches: [ "fix/fix-release.yaml" ]
   pull_request:
     branches: [ "fix/fix-release.yaml" ]
+    tags:
+      - 'v*
 
 permissions:
   contents: read
@@ -34,3 +36,6 @@ jobs:
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.github_token }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
