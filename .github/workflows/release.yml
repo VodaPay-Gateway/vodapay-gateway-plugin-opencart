@@ -2,9 +2,9 @@ name: PHP Plugin Release
 
 on:
   push:
-    branches: [ "fix/fix-release.yaml" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "fix/fix-release.yaml" ]
+    branches: [ "main" ]
 
 permissions: write-all
 
@@ -22,7 +22,7 @@ jobs:
       uses: ietf-tools/semver-action@v1
       with:
         token: ${{ github.token }}
-        branch: fix/fix-release.yaml 
+        branch: main 
 
     - name: Configure Token
       run: composer config -g github-oauth.github.com ${{ secrets.SATIS_SECRET }}
@@ -34,7 +34,7 @@ jobs:
     - name: Zipping plugin
       uses: montudor/action-zip@v1
       with:
-        args: zip -qq -r vodapay-gatewat.ocmod.zip upload
+        args: zip -qq -r vodapay-gateway.ocmod.zip upload
 
     - name: Create Pre Release
       uses: "marvinpinto/action-automatic-releases@latest"
@@ -44,4 +44,4 @@ jobs:
         prerelease: true
         title: "TEST"
         files: |
-            vodapay-gatewat.ocmod.zip
+            vodapay-gateway.ocmod.zip
