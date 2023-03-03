@@ -2,9 +2,9 @@ name: PHP Plugin Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "fix/fix-release.yaml" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "fix/fix-release.yaml" ]
 
 permissions: write-all
 
@@ -16,6 +16,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    
+    - name: Get Next Version
+      id: semver
+      uses: ietf-tools/semver-action@v1
+      with:
+        token: ${{ github.token }}
+        branch: main 
 
     - name: Configure Token
       run: composer config -g github-oauth.github.com ${{ secrets.SATIS_SECRET }}
@@ -33,8 +40,8 @@ jobs:
       uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
+        automatic_release_tag: ${{ steps.semver.outputs.nextStrict }}
         prerelease: true
-        title: "Development Build"
+        title: "TEST"
         files: |
             vodapay-gatewat.ocmod.zip
