@@ -6,27 +6,42 @@ on:
   pull_request:
     branches: [ "main" ]
 
-permissions:
-  contents: read
+permissions: write-all
 
 jobs:
-   release:
-    name: "Release"
-
-    runs-on: ubuntu-latest
+  pre-release:
+    name: "Pre Release"
+    
+    runs-on: "ubuntu-latest"
 
     steps:
     - uses: actions/checkout@v3
+    
+    - name: Get Next Version
+      id: versioning
+      uses: ietf-tools/semver-action@v1
+      with:
+        token: ${{ github.token }}
+        branch: main 
+
+    - name: Configure Token
+      run: composer config -g github-oauth.github.com ${{ secrets.SATIS_SECRET }}
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      working-directory: ./upload/system/library/vpg
+      run: composer update --prefer-dist --no-progress
       
     - name: Zipping plugin
       uses: montudor/action-zip@v1
       with:
-        args: zip -qq -r vodapay-gatewat.ocmod.zip upload
+        args: zip -qq -r vodapay-gateway.ocmod.zip upload
 
-    - name: create release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.github_token }}
+    - name: Create Pre Release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: ${{ steps.versioning.outputs.nextStrict }}
+        prerelease: true
+        title: "TEST"
+        files: |
+            vodapay-gateway.ocmod.zip
