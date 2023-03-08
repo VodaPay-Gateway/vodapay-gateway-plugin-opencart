@@ -1,7 +1,7 @@
 # OpenCart Plugin [![.NET](https://github.com/VodaPay-Gateway/vodapay-gateway-plugin-opencart/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/VodaPay-Gateway/vodapay-gateway-plugin-opencart/actions/workflows/release.yml)
 
 ## OpenCart
-[OpenCart](https://www.opencart.com/) is free open source e-commerce platform for online merchants. OpenCart provides a professional and reliable foundation from which to build a successful online store. 
+[OpenCart](https://www.opencart.com/) is a free open-source e-commerce platform for online merchants. OpenCart provides a professional and reliable foundation from which to build a successful online store. 
 
 ---
 
