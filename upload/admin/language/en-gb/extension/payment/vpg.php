@@ -15,6 +15,7 @@ $_['text_authorization'] = 'Authorization';
 $_['text_evironment_virtual'] = 'Virtual Testing';
 $_['text_evironment_uat'] = 'UAT Testing';
 $_['text_evironment_prod'] = 'Production Testing';
+$_['text_vpg'] = '<a href="https://docs.vodapaygateway.vodacom.co.za/docs/category/plugins" target="_blank"><img src="view/image/payment/vpg.svg" alt="VPG" title="VPG" style="border: 1px solid #EEEEEE;" /></a>';
 $_['text_api'] = 'API Key';
 $_['text_sale'] = 'Sale';
 
