@@ -39,12 +39,11 @@ class ControllerExtensionPaymentVPG extends Controller{
                         1,
                         32
                     );
-            $traceId = str_pad($this->session->data['user_token'], 12, $traceId, STR_PAD_LEFT);
+            $traceId = str_pad($this->session->data['customer_id'], 12, $traceId, STR_PAD_LEFT);
             $amount = intval(($order_info['total'])* 100);
             $basketItems = $this->getBasketItemsArray($order_info);
             // $callback_url = $this->url->link('extension/payment/vpg/callback', '', true);
-            $callback_url = 'https://localhost/opencartversion3/index.php?route=extension/payment/vpg/callback';
-		    // $callback_url = 'https://www.google.com/';
+            $callback_url = 'https://localhost/opencartversion3/index.php?route=extension/payment/vpg/callback&';
             $notification_url = $this->config->get('payment_vpg_notification');
             if (!empty($notification_url)) {
                 $notifications = array('CallbackUrl' => $callback_url,
@@ -159,8 +158,6 @@ class ControllerExtensionPaymentVPG extends Controller{
         return $basketItems;
     }
     
-    //Some Instant Update variables set up the Cart Upload to use your callback server. Include the following required variables in the Cart Upload command to have PayPal send Instant Update requests to your callback server.
-    //It means the Paypal will call this URL and update the order status in the database of the website.
     public function callback()
     {
         $this->load->language('extension/payment/vpg');
@@ -176,12 +173,12 @@ class ControllerExtensionPaymentVPG extends Controller{
                 fclose($logFile);
             }  
             $display = "\n---------------Vodapay Gateway---------------\n";
-            $display .= "GET/POST data: " . $results['data'];
+            $display .= "GET/POST data: " . $results['?data'];
             $display .= "\n---------------------------------------------\n";
             error_log($display,3,$filePath);
         }
 
-        $responseObj = json_decode(base64_decode($results['data']));
+        $responseObj = json_decode(base64_decode($results['?data']));
         $responseCode = $responseObj->responseCode;
 
         $echoData = $responseObj->echoData;
@@ -218,20 +215,47 @@ class ControllerExtensionPaymentVPG extends Controller{
 
                     // $order->update_meta_data('vodapay_payment_ref_id', $refId);
                     // $order->update_meta_data('vodapay_payment_txn_id', $txnId);
-                    header('Location:'.$this->url->link('checkout/success&language=en-gb'),"");
+                    $this->response->redirect($this->url->link('checkout/success'));;
                 }
             }
         } elseif (in_array($responseCode, explode(',',$this->language->get('bad_response')))) {
         //     //FAILURE
         //     echo "ElseIF";
-            $data['failed'] = 'Response Code '.$responseCode.': '.$this->language->get($responseCode);
-            $this->session->data['error_warning'] =  $data['failed'];
-             $this->load->view('extension/payment/vpg', $data);
-            header('Location:'.$this->url->link('checkout/checkout&language=en-gb'),"");
-           
+        $data['breadcrumbs'] = array();
+
+			$data['breadcrumbs'][] = array(
+				'text' => $this->language->get('text_home'),
+				'href' => $this->url->link('common/home')
+			);
+
+			$data['breadcrumbs'][] = array(
+				'text' => $this->language->get('text_basket'),
+				'href' => $this->url->link('checkout/cart')
+			);
+
+			$data['breadcrumbs'][] = array(
+				'text' => $this->language->get('text_checkout'),
+				'href' => $this->url->link('checkout/checkout', '', true)
+			);
+
+			$data['breadcrumbs'][] = array(
+				'text' => $this->language->get('text_failed'),
+				'href' => $this->url->link('checkout/success')
+			);
+
+            $responseMessage = '<p>Response Code '.$responseCode.': '.$this->language->get(strval('r'.$responseCode)).'</p>';
+			$data['text_message'] = $this->language->get('text_failed_message').$responseMessage;
+
+			$data['continue'] = $this->url->link('common/home');
+
+			$data['column_left'] = $this->load->controller('common/column_left');
+			$data['column_right'] = $this->load->controller('common/column_right');
+			$data['content_top'] = $this->load->controller('common/content_top');
+			$data['content_bottom'] = $this->load->controller('common/content_bottom');
+			$data['footer'] = $this->load->controller('common/footer');
+			$data['header'] = $this->load->controller('common/header');
+
+			$this->response->setOutput($this->load->view('common/success', $data));
         } 
-        // else {
-        //     $this->informTxnFailure($order,$responseObj->responseMessage);
-        // }
     }
 }
