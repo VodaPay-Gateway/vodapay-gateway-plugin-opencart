@@ -2,6 +2,11 @@
 // Heading
 $_['heading_title'] = 'Vodapay Gateway';
 
+//Environment
+$_['environment_virtual']	= 0;
+$_['environment_uat']	= 1;
+$_['environment_prod']	= 2;
+
 // Text
 $_['text_extension'] = 'Extensions';
 $_['text_success'] = 'Success: You have modified Vodapay Gateway!';

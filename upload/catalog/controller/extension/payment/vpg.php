@@ -1,4 +1,10 @@
 <?php
+
+use function PHPUnit\Framework\fileExists;
+use function PHPUnit\Framework\throwException;
+
+require_once DIR_SYSTEM . 'library/vpg/vendor/autoload.php';
+
 class ControllerExtensionPaymentVPG extends Controller{    
     public function index()
     {
@@ -26,6 +32,7 @@ class ControllerExtensionPaymentVPG extends Controller{
                 $url = null;
                 break;
         }
+        $file = DIR_STORAGE . "logs/VodapayGateway_Logs.txt";
         $data['button_confirm'] = $this->language->get('button_confirm');
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
@@ -39,11 +46,10 @@ class ControllerExtensionPaymentVPG extends Controller{
                         1,
                         32
                     );
-            $traceId = str_pad($this->session->data['customer_id'], 12, $traceId, STR_PAD_LEFT);
+            $traceId = str_pad('',12, $traceId, STR_PAD_LEFT);
             $amount = intval(($order_info['total'])* 100);
             $basketItems = $this->getBasketItemsArray($order_info);
-            // $callback_url = $this->url->link('extension/payment/vpg/callback', '', true);
-            $callback_url = 'https://localhost/opencartversion3/index.php?route=extension/payment/vpg/callback&';
+            $callback_url = $this->url->link('extension/payment/vpg/callback&', '', true);
             $notification_url = $this->config->get('payment_vpg_notification');
             if (!empty($notification_url)) {
                 $notifications = array('CallbackUrl' => $callback_url,
@@ -70,7 +76,7 @@ class ControllerExtensionPaymentVPG extends Controller{
                 'styling' => $styling
             );
 
-            require_once DIR_SYSTEM . 'library/vpg/vendor/autoload.php';
+            
             
             $apiInstance = new \VodaPayGatewayClient\Api\PayApi(
                 // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
@@ -99,30 +105,33 @@ class ControllerExtensionPaymentVPG extends Controller{
                 }
                 else{
                 
-                 $filePath = DIR_SYSTEM .'storage/logs/vpg_log.txt';
-
-                 if(!is_file($filePath)){
-                     $logFile = fopen($filePath,"x");
-                     fclose($logFile);
-                 }   
                  $responseCode = $result->getResponseCode();
                  if (in_array($responseCode, explode(',',$this->language->get('good_response')))) {
                      //SUCCESS
                      if ($responseCode == "00") {
-                         $data['action'] = $result->getinitiationUrl();
-                         $data['sessionId'] = $result->getsessionId();
-                     }
+                            $data['action'] = $result->getinitiationUrl();
+                            $data['sessionId'] = $result->getsessionId();
+                    }
                  } elseif (in_array($responseCode, explode(',',$this->language->get('bad_response')))) {
                      //FAILURE
                      $responseMessage = $this->language->get($responseCode);
                      $data['error'] = $this->error;
                      
                  }
-                 error_log("\n--------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------Vodapay Gateway---------------"."\nCustomer ID= ".$model->getEchoData()."\nURL= ".$url."\nTest= ".$test_header."\nAPI Key= ".$api_key."\nRequest Details= ".$model."\nResponse Details= " .$result."\n--------------------------------------------",3,$filePath);
+                 $log_message = "\n--------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------Vodapay Gateway---------------"."\nCustomer ID= ".$model->getEchoData()."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\n--------------------------------------------";
+                 if (!fileExists($file)) {
+                    fopen($file,"w");
+                }
+        
+                file_put_contents($file, $log_message, FILE_APPEND);
+        
+                }
+                if (null === $result->getinitiationUrl()) {
+                    throw new Exception("Initiation Url not populated.");
                 }
             } catch (Exception $e) {
                 
-                $this->log->write("\n---------------Vodapay Gateway---------------"."\nCustomer ID= ".$model->getEchoData()."\nURL= ".$url."\nTest= ".$test_header."\nAPI Key= ".$api_key."\nRequest Details= ".$model."\nResponse Details= " .$result."\nError:".$e."\n--------------------------------------------");
+                $this->log->write("\n---------------Vodapay Gateway---------------"."\nCustomer ID= ".$model->getEchoData()."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\nError:".$e."\n--------------------------------------------");
             }
         }
         return $this->load->view('extension/payment/vpg', $data);
@@ -132,27 +141,15 @@ class ControllerExtensionPaymentVPG extends Controller{
         $basketItems = [];
         $line_item_count  = 0;
         foreach ($this->cart->getProducts() as $product) {
-            if ($product['tax_class_id'] !== "0") {
-                $basketItem = array(
-                    'lineNumber' => strval(++$line_item_count),
-                    'Id' => $product['product_id'],
-                    'barcode' => '054213',
-                    'quantity' => $product['quantity'],
-                    'description' => $product['name'],
-                    'amountExVAT' => intval(($product['total'] * 100)),
-                    'amountVAT' => intval(($product['total'] * 0.15) * 100)
-                );
-            } else {
-                $basketItem = array(
-                    'LineNumber' => strval(++$line_item_count),
-                    'ProductId' => $product['product_id'],
-                    'ProductBarcode' => '054213',
-                    'Quantity' => $product['quantity'],
-                    'Description' => $product['name'],
-                    'AmountExVat' => intval($product['total'] * 100),
-                    'AmountVat' => intval($product['total']* 100)
-                );
-            }
+            $basketItem = array(
+                'lineNumber' => strval(++$line_item_count),
+                'Id' => $product['product_id'],
+                'barcode' => '054213',
+                'quantity' => $product['quantity'],
+                'description' => substr($product['name'], 0, 99),
+                'amountExVAT' => intval(($product['total'] * 100)),
+                'amountVAT' => intval(($product['total'] * 0.15) * 100)
+            );
             $basketItems[] = $basketItem;
         }
         return $basketItems;
@@ -163,22 +160,14 @@ class ControllerExtensionPaymentVPG extends Controller{
         $this->load->language('extension/payment/vpg');
         $this->load->model('checkout/order');
 
+        $file = DIR_STORAGE . "logs/VodapayGateway_Logs.txt";
         $results = $_GET;
-
+        $display = "\n------------------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------Vodapay Gateway Response---------------\n";
         if ("yes" == $this->config->get("payment_vpg_debug")) {
-            $filePath = DIR_SYSTEM .'storage/logs/vpgPaymentJourney_log.txt';
-
-            if(!is_file($filePath)){
-                $logFile = fopen($filePath,"x");
-                fclose($logFile);
-            }  
-            $display = "\n---------------Vodapay Gateway---------------\n";
-            $display .= "GET/POST data: " . $results['?data'];
-            $display .= "\n---------------------------------------------\n";
-            error_log($display,3,$filePath);
+            $display .= "GET/POST data: " . isset($results['data'])?$results['data']:$results['?data'];
         }
 
-        $responseObj = json_decode(base64_decode($results['?data']));
+        $responseObj = json_decode(base64_decode(isset($results['data'])?$results['data']:$results['?data']));
         $responseCode = $responseObj->responseCode;
 
         $echoData = $responseObj->echoData;
@@ -187,24 +176,16 @@ class ControllerExtensionPaymentVPG extends Controller{
         if (in_array($responseCode, explode(',',$this->language->get('good_response')))) {
         //SUCCESS
             if ($responseCode == "00") {
-                // if ("yes" == $this->debug) {
-                //     // $this->log->add("wc-vodapay", "Webhook response code : " . $responseCode);
-                // }
 
                 if (true) {
 
-                    // $refId = $responseObj->retrievalReferenceNumber;
+                    $refId = $responseObj->retrievalReferenceNumber;
                     $txnId = $responseObj->transactionId;
-
-                    // // $str = preg_replace('/\D/', '', $refId);
-                    // //$order = new WC_Order($str);
-
-                    // // if ("yes" == $this->debug) {
-                    // //     $this->log->add("wc-vodapay", "response REF ID : " . $refId);
-                    // //     $this->log->add("wc-vodapay", "response TXN ID : " . $txnId);
-                    // //     $this->log->add("wc-vodapay", "response Order : " . $order);
-                    // // }
-
+                    $display .= "response REF ID : ". $refId."\n";
+                    $display .= "\nresponse TXN ID : ". $txnId;
+                    $display .= "\nresponse Order : ". $order;
+                    
+                    
                     $success_msg = sprintf(
                         "%s payment completed with Transaction Id of '%s'",
                         'Vodapay',
@@ -212,15 +193,11 @@ class ControllerExtensionPaymentVPG extends Controller{
                     );
 
                     $this->model_checkout_order->addOrderHistory($order['order_id'],5, $success_msg, true);
-
-                    // $order->update_meta_data('vodapay_payment_ref_id', $refId);
-                    // $order->update_meta_data('vodapay_payment_txn_id', $txnId);
                     $this->response->redirect($this->url->link('checkout/success'));;
                 }
             }
         } elseif (in_array($responseCode, explode(',',$this->language->get('bad_response')))) {
         //     //FAILURE
-        //     echo "ElseIF";
         $data['breadcrumbs'] = array();
 
 			$data['breadcrumbs'][] = array(
@@ -257,5 +234,15 @@ class ControllerExtensionPaymentVPG extends Controller{
 
 			$this->response->setOutput($this->load->view('common/success', $data));
         } 
+
+        $display .= "\n------------------------------------------------------\n";
+
+        if (!fileExists($file)) {
+            fopen($file,"w");
+        }
+
+        file_put_contents($file, $display, FILE_APPEND);
+
+        // error_log($display, 3, $file);
     }
 }
