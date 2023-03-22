@@ -46,7 +46,7 @@ class ControllerExtensionPaymentVPG extends Controller{
                         1,
                         32
                     );
-            $traceId = str_pad('',12, $traceId, STR_PAD_LEFT);
+            $traceId = str_pad($this->session->data['customer_id'],12, $traceId, STR_PAD_LEFT);
             $amount = intval(($order_info['total'])* 100);
             $basketItems = $this->getBasketItemsArray($order_info);
             $callback_url = $this->url->link('extension/payment/vpg/callback&', '', true);
@@ -118,7 +118,7 @@ class ControllerExtensionPaymentVPG extends Controller{
                      $data['error'] = $this->error;
                      
                  }
-                 $log_message = "\n--------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------Vodapay Gateway---------------"."\nCustomer ID= ".$model->getEchoData()."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\n--------------------------------------------";
+                 $log_message = "\n--------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------Vodapay Gateway---------------"."\nOrder ID= ".$model->getEchoData()."\Customer ID= ".$this->session->data['customer_id']."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\n--------------------------------------------";
                  if (!fileExists($file)) {
                     fopen($file,"w");
                 }
@@ -131,7 +131,7 @@ class ControllerExtensionPaymentVPG extends Controller{
                 }
             } catch (Exception $e) {
                 
-                $this->log->write("\n---------------Vodapay Gateway---------------"."\nCustomer ID= ".$model->getEchoData()."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\nError:".$e."\n--------------------------------------------");
+                $this->log->write("\n---------------Vodapay Gateway---------------"."\nOrder ID= ".$model->getEchoData()."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\nError:".$e."\n--------------------------------------------");
             }
         }
         return $this->load->view('extension/payment/vpg', $data);
@@ -162,13 +162,13 @@ class ControllerExtensionPaymentVPG extends Controller{
 
         $file = DIR_STORAGE . "logs/VodapayGateway_Logs.txt";
         $results = $_GET;
-        $display = "\n------------------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------Vodapay Gateway Response---------------\n";
-        if ("yes" == $this->config->get("payment_vpg_debug")) {
-            $display .= "GET/POST data: " . isset($results['data'])?$results['data']:$results['?data'];
+        $details = "\n------------------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------Vodapay Gateway Response---------------\n";
+        if ($this->config->get("payment_vpg_test") == 1) {
+            $details .= "GET/POST data: " . isset($results['data'])?$results['data']:$results['?data'];
         }
-
         $responseObj = json_decode(base64_decode(isset($results['data'])?$results['data']:$results['?data']));
         $responseCode = $responseObj->responseCode;
+        $responseMessage = $responseObj->responseMessage;
 
         $echoData = $responseObj->echoData;
         $meta = json_decode($echoData, TRUE);
@@ -181,9 +181,9 @@ class ControllerExtensionPaymentVPG extends Controller{
 
                     $refId = $responseObj->retrievalReferenceNumber;
                     $txnId = $responseObj->transactionId;
-                    $display .= "response REF ID : ". $refId."\n";
-                    $display .= "\nresponse TXN ID : ". $txnId;
-                    $display .= "\nresponse Order : ". $order;
+                    $details .= "response REF ID : ". $refId."\n";
+                    $details .= "\nresponse TXN ID : ". $txnId;
+                    $details .= "\nresponse Order : ". $order;
                     
                     
                     $success_msg = sprintf(
@@ -193,12 +193,13 @@ class ControllerExtensionPaymentVPG extends Controller{
                     );
 
                     $this->model_checkout_order->addOrderHistory($order['order_id'],5, $success_msg, true);
+                    $this->log_details($file, $details);
                     $this->response->redirect($this->url->link('checkout/success'));;
                 }
             }
-        } elseif (in_array($responseCode, explode(',',$this->language->get('bad_response')))) {
+        } else {
         //     //FAILURE
-        $data['breadcrumbs'] = array();
+            $data['breadcrumbs'] = array();
 
 			$data['breadcrumbs'][] = array(
 				'text' => $this->language->get('text_home'),
@@ -220,8 +221,14 @@ class ControllerExtensionPaymentVPG extends Controller{
 				'href' => $this->url->link('checkout/success')
 			);
 
-            $responseMessage = '<p>Response Code '.$responseCode.': '.$this->language->get(strval('r'.$responseCode)).'</p>';
-			$data['text_message'] = $this->language->get('text_failed_message').$responseMessage;
+            if (in_array($responseCode, explode(',',$this->language->get('bad_response')))){
+                $response = '<p>Response Code '.$responseCode.': '.$responseMessage.'</p>';
+                $data['text_message'] = $this->language->get('text_failed_message').$response;
+            }
+            else{
+                $data['text_message'] = $this->language->get('text_failed_message');
+            }
+            
 
 			$data['continue'] = $this->url->link('common/home');
 
@@ -232,17 +239,18 @@ class ControllerExtensionPaymentVPG extends Controller{
 			$data['footer'] = $this->load->controller('common/footer');
 			$data['header'] = $this->load->controller('common/header');
 
+            $this->log_details($file, $details);
 			$this->response->setOutput($this->load->view('common/success', $data));
         } 
+    }
 
-        $display .= "\n------------------------------------------------------\n";
+    private function log_details($file, $details){
+        $details .= "\n------------------------------------------------------\n";
 
         if (!fileExists($file)) {
             fopen($file,"w");
         }
-
-        file_put_contents($file, $display, FILE_APPEND);
-
-        // error_log($display, 3, $file);
+    
+        file_put_contents($file, $details, FILE_APPEND);
     }
 }
