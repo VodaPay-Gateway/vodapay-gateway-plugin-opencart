@@ -163,12 +163,14 @@ class ControllerExtensionPaymentVPG extends Controller{
         $file = DIR_STORAGE . "logs/VodapayGateway_Logs.txt";
         $results = $_GET;
         $details = "\n------------------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------Vodapay Gateway Response---------------\n";
-        if ($this->config->get("payment_vpg_test") == 1) {
-            $details .= "GET/POST data: " . isset($results['data'])?$results['data']:$results['?data'];
-        }
+        
         $responseObj = json_decode(base64_decode(isset($results['data'])?$results['data']:$results['?data']));
         $responseCode = $responseObj->responseCode;
         $responseMessage = $responseObj->responseMessage;
+        if ($this->config->get("payment_vpg_test") == 1) {
+            $responseDetails = sprintf("\n\tOrder ID= %s, \n\tSession ID= %s, \n\tResponse Code= %s, \n\tResponse Message= %s, \n\tPayment Method= %s\n",$responseObj->echoData,$responseObj->sessionId,$responseCode,$responseMessage,$responseObj->paymentMethod);
+            $details .= "\nResponse Body = { " .$responseDetails.'}';
+        }
 
         $echoData = $responseObj->echoData;
         $meta = json_decode($echoData, TRUE);
@@ -181,10 +183,8 @@ class ControllerExtensionPaymentVPG extends Controller{
 
                     $refId = $responseObj->retrievalReferenceNumber;
                     $txnId = $responseObj->transactionId;
-                    $details .= "response REF ID : ". $refId."\n";
+                    $details .= "\nresponse REF ID : ". $refId;
                     $details .= "\nresponse TXN ID : ". $txnId;
-                    $details .= "\nresponse Order : ". $order;
-                    
                     
                     $success_msg = sprintf(
                         "%s payment completed with Transaction Id of '%s'",
