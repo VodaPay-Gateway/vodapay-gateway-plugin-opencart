@@ -1,0 +1,97 @@
+<style>
+
+</style>
+
+<div class="table-responsive card-body">
+    <table class="table vpg-subtable">
+        <tr>
+            <th>Transaction Id</th>
+            <td class="value">{{ transaction_id }}</td>
+        </tr>
+        <tr>
+            <th>Payment Status</th>
+            <td class="value">{{ status }}</td>
+        </tr>
+        <tr>
+            <th>Amount Paid</th>
+            <td  class="value">{{ amount }}</td>
+        </tr>
+        {% if is_refunded %}
+        <tr>
+            <th>Amount Refunded</th>
+            <td id="vpg_refund_paid" class="value">{{ amount_refunded }}</td>
+        </tr>
+        {% endif %}
+        <tr>
+            <td colspan="2" class="value">
+                <strong>
+                    <span id="refund_span_{{ transaction_id }}">
+                    <a class="btn btn-primary" 
+                       href="javascript:void(0);" 
+                       onclick="$('#refund_span_{{ transaction_id }}').hide();$('#refund_form_{{ transaction_id }}').show();">
+                        Refund
+                    </a>
+                    </span>
+                    <form id="refund_form_{{ transaction_id }}" method="post"
+                          action="#" 
+                          class="form-horizontal" style="display:none" onsubmit="return false">
+                        <div class="">
+                                <label for="vpg_refund_amount" class="form-control-label label-on-top col-12">
+                                    Enter the amount<span class="text-danger">*</span>
+                                </label>
+                             <div class="col-sm">
+                                <div class="input-group">
+                                    <input type="text" id="vpg_refund_amount" required="required" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="text-left">
+                            <button 
+                                type="button" 
+                                class="btn btn-secondary" 
+                                onclick="$('#refund_span_{{ transaction_id }}').show();$('#refund_form_{{ transaction_id }}').hide();">
+                                Cancel
+                            </button>
+                            
+                            <input type="hidden" id="transaction_id" value="{{ transaction_id }}" />
+                            <button type="submit" name="vpg_refund" id="vpg_refund" class="btn btn-primary">Refund Payment</button>
+                        </div>
+                    </form>
+                </strong>
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#vpg_refund').click(function(e){
+        var vpg_refund_amount = $('#vpg_refund_amount').val();
+        var transaction_id = $('#transaction_id').val();
+        var vpg_refund_paid = $('#vpg_refund_paid').val().replace('R','');
+        $.ajax({
+		url: 'index.php?route=extension/payment/vpg/refund&user_token={{ user_token }}',
+                type: 'post',
+                data: 'order_id={{ order_id }}&transaction_id='+transaction_id+'&vpg_refund_amount='+vpg_refund_amount+'&vpg_refund_paid='+vpg_refund_paid,
+		dataType: 'json',
+		beforeSend: function() {
+                    $('#vpg_refund').button('loading');
+		},
+		complete: function() {
+                    $('#vpg_refund').button('reset');
+		},
+		success: function(json) {
+                    if (json.status == 1) {
+                        alert(json.message);
+                        location.href=location.href;
+                    } else {
+                        alert(json.message);
+                    }
+		},
+		error: function(xhr, ajaxOptions, thrownError) {
+                    alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		}
+	});
+    });
+});
+</script> 
