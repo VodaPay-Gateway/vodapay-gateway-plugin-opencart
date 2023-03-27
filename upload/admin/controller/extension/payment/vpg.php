@@ -103,10 +103,10 @@ class ControllerExtensionPaymentVPG extends Controller
 			$data['Message_URL'] = $this->config->get('payment_vpg_merchant_message_url');
 		}
 
-        if (isset($this->request->post['payment_vpg_debug'])) {
-			$data['Testing'] = $this->request->post['payment_vpg_debug'];
+        if (isset($this->request->post['payment_vpg_test'])) {
+			$data['Testing'] = $this->request->post['payment_vpg_test'];
 		} else {
-			$data['Testing'] = $this->config->get('payment_vpg_debug');
+			$data['Testing'] = $this->config->get('payment_vpg_test');
 		}
 
         //Assigning the Form action URL. URL is 
