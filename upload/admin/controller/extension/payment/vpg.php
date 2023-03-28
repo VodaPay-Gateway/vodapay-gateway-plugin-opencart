@@ -274,7 +274,7 @@ class ControllerExtensionPaymentVPG extends Controller
                  $responseCode = $result->getResponseCode();
                  if (in_array($responseCode, explode(',',$this->language->get('good_response')))) {
                      //SUCCESS
-                        $success_msg = sprintf("Refunded successfully with amount R%s",$amount/100);
+                        $success_msg = sprintf("Vodapay refund completed with amount R%s",$amount/100);
                         $this->model_extension_payment_vpg->addOrderHistory($order_id,11, $success_msg, true);
                         $this->model_extension_payment_vpg->addOrderRefundTotal($order_id, $amount/100);
                         $log_message = "\n----------------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------Vodapay Gateway Refund---------------"."\Order ID= ".$model->getEchoData()."\Customer ID= ".$this->session->data['customer_id']."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\n----------------------------------------------------";
