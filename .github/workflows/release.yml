@@ -25,7 +25,7 @@ jobs:
         branch: main 
 
     - name: Configure Token
-      run: composer config -g github-oauth.github.com ${{ secrets.SATIS_SECRET }}
+      run: composer config -g github-oauth.github.com ${{ secrets.API_TOKEN_GITHUB }}
 
     - name: Install dependencies
       working-directory: ./upload/system/library/vpg
@@ -36,12 +36,11 @@ jobs:
       with:
         args: zip -qq -r vodapay-gateway.ocmod.zip upload
 
-    - name: Create Pre Release
+    - name: Create Release
       uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: ${{ steps.versioning.outputs.nextStrict }}
-        prerelease: true
-        title: "Development Build"
+        title: ${{ steps.versioning.outputs.nextStrict }}
         files: |
             vodapay-gateway.ocmod.zip
