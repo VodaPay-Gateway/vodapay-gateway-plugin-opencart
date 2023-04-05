@@ -42,6 +42,6 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: ${{ steps.versioning.outputs.nextStrict }}
         title: ${{ steps.versioning.outputs.nextStrict }}
-        prerelease: true
+        prerelease: false
         files: |
             vodapay-gateway.ocmod.zip
