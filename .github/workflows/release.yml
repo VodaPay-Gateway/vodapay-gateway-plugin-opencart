@@ -10,7 +10,7 @@ permissions: write-all
 
 jobs:
   pre-release:
-    name: "Pre Release"
+    name: "Release"
     
     runs-on: "ubuntu-latest"
 
@@ -42,5 +42,6 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: ${{ steps.versioning.outputs.nextStrict }}
         title: ${{ steps.versioning.outputs.nextStrict }}
+        prerelease: true
         files: |
             vodapay-gateway.ocmod.zip
