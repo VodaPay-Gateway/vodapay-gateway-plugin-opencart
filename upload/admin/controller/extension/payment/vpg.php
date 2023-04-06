@@ -208,14 +208,14 @@ class ControllerExtensionPaymentVPG extends Controller
             $test_header = false;
             switch ($this->config->get('payment_vpg_environment')) {
                 case $this->language->get("environment_virtual"):
-                    $url = 'https://api.vodapaygatewayuat.vodacom.co.za/V2/Pay/OnceOff';
+                    $url = 'https://api.vodapaygatewayuat.vodacom.co.za';
                     $test_header = true;
                     break;
                 case $this->language->get("environment_uat"):
-                    $url = 'https://api.vodapaygatewayuat.vodacom.co.za/V2/Pay/OnceOff';
+                    $url = 'https://api.vodapaygatewayuat.vodacom.co.za';
                     break;
                 case $this->language->get("environment_prod"):
-                    $url = 'https://api.vodapaygateway.vodacom.co.za/V2/Pay/OnceOff';
+                    $url = 'https://api.vodapaygateway.vodacom.co.za';
                     break;
                 default:
                     $url = null;
@@ -244,10 +244,14 @@ class ControllerExtensionPaymentVPG extends Controller
                 'notifications' => $notifications
 
             );
+
+            $config = new \VodaPayGatewayClient\Configuration();
+            $config->setHost($url);
             $apiInstance = new \VodaPayGatewayClient\Api\PayApi(
                 // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
                 // This is optional, `GuzzleHttp\Client` will be used as default.
-                new \GuzzleHttp\Client()
+                new \GuzzleHttp\Client(),
+                $config
             );
             $model = new \VodaPayGatewayClient\Model\VodaPayGatewayRefund($body); // \VodaPayGatewayClient\Model\VodaPayGatewayPaymentComplete | VodaPayGatewayPaymentComplete.
             $api_key = $this->config->get('payment_vpg_api'); // string | The API key.
@@ -274,9 +278,9 @@ class ControllerExtensionPaymentVPG extends Controller
                  $responseCode = $result->getResponseCode();
                  if (in_array($responseCode, explode(',',$this->language->get('good_response')))) {
                      //SUCCESS
-                        $success_msg = sprintf("Vodapay refund completed with amount R%s",$amount/100);
+                        $success_msg = sprintf("Vodapay refund completed with amount %s",$this->currency->format($vpg_refund_amount, $order_info['currency_code'], $order_info['currency_value']));
                         $this->model_extension_payment_vpg->addOrderHistory($order_id,11, $success_msg, true);
-                        $this->model_extension_payment_vpg->addOrderRefundTotal($order_id, $amount/100);
+                        $this->model_extension_payment_vpg->addOrderRefundTotal($order_id, $vpg_refund_amount);
                         $log_message = "\n----------------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------Vodapay Gateway Refund---------------"."\Order ID= ".$model->getEchoData()."\Customer ID= ".$this->session->data['customer_id']."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\n----------------------------------------------------";
                  }
                 }
@@ -308,7 +312,7 @@ class ControllerExtensionPaymentVPG extends Controller
     }
 
     function getTransactionId($order_history) {
-        $comment_vodapay_message = 	"Vodapay";
+        $comment_vodapay_message = 	"Vodapay payment";
         foreach ($order_history as $key => $val) {
             if (isset($val['comment'])) {
                 if (strpos($val['comment'], $comment_vodapay_message) !== false) {
