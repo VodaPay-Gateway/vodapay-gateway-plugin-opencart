@@ -14,7 +14,7 @@
         </tr>
         <tr>
             <th>Amount Paid</th>
-            <td  class="value">{{ amount }}</td>
+            <td id="vpg_amount_paid" class="value">{{ amount }}</td>
         </tr>
         {% if is_refunded %}
         <tr>
@@ -41,7 +41,7 @@
                                 </label>
                              <div class="col-sm">
                                 <div class="input-group">
-                                    <input type="text" id="vpg_refund_amount" required="required" class="form-control" />
+                                    <input type="text" id="vpg_refund_amount" required="required" class="form-control" maxlength="7" />
                                 </div>
                             </div>
                         </div>
@@ -68,13 +68,20 @@ $(document).ready(function() {
     $('#vpg_refund').click(function(e){
         var vpg_refund_amount = $('#vpg_refund_amount').val();
         var transaction_id = $('#transaction_id').val();
+        var vpg_amount_paid = $('#vpg_amount_paid').val().replace('R','');
         var vpg_refund_paid = $('#vpg_refund_paid').val().replace('R','');
+        
         $.ajax({
 		url: 'index.php?route=extension/payment/vpg/refund&user_token={{ user_token }}',
                 type: 'post',
                 data: 'order_id={{ order_id }}&transaction_id='+transaction_id+'&vpg_refund_amount='+vpg_refund_amount+'&vpg_refund_paid='+vpg_refund_paid,
 		dataType: 'json',
 		beforeSend: function() {
+                    if (!vpg_refund_amount || isNaN(vpg_refund_amount)) {
+                        $message = "Error: Incorrect Input.\nPlease ensure that the amount is not null or empty, does not exceed amount paid and does not contain any Alphabetic letters."
+                        alert($message)
+                        xhr.abort();
+                    }
                     $('#vpg_refund').button('loading');
 		},
 		complete: function() {
@@ -83,6 +90,7 @@ $(document).ready(function() {
 		success: function(json) {
                     if (json.status == 1) {
                         alert(json.message);
+                        $('#vpg_refund_amount').html('');
                         location.href=location.href;
                     } else {
                         alert(json.message);
