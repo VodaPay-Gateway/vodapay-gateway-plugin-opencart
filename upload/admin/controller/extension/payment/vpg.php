@@ -137,7 +137,7 @@ class ControllerExtensionPaymentVPG extends Controller
 
            
             $amount_refunded =  array_sum(array_column($this->model_extension_payment_vpg->getOrderRefundTotal($order_id), 'value'));
-            $tab['title'] = 'Vodapay Gateway Refund';
+            $tab['title'] = 'VodaPay Gateway Refund';
             $tab['code'] = 'vpg_refund';
 
             $params['user_token'] = $data['user_token'];
@@ -164,7 +164,7 @@ class ControllerExtensionPaymentVPG extends Controller
         $response = array();
         $status = 0;
         $log_message = '';
-        $file = DIR_STORAGE . "logs/VodapayGatewayRefund_Logs.txt";
+        $file = DIR_STORAGE . "logs/VodaPayGatewayRefund_Logs.txt";
         $result =  new \VodaPayGatewayClient\Model\VodaPayGatewayRefundResponse();
 
         try {
@@ -280,18 +280,18 @@ class ControllerExtensionPaymentVPG extends Controller
                  $responseCode = $result->getResponseCode();
                  if (in_array($responseCode, explode(',',$this->language->get('good_response')))) {
                      //SUCCESS
-                        $success_msg = sprintf("Vodapay refund completed with amount %s",$this->currency->format($vpg_refund_amount, $order_info['currency_code'], $order_info['currency_value']));
+                        $success_msg = sprintf("VodaPay refund completed with amount %s",$this->currency->format($vpg_refund_amount, $order_info['currency_code'], $order_info['currency_value']));
                         $this->model_extension_payment_vpg->addOrderHistory($order_id,11, $success_msg, true);
                         $this->model_extension_payment_vpg->addOrderRefundTotal($order_id, $vpg_refund_amount);
                         $message = $success_msg;
                         $status = 1;
-                        $log_message = "\n----------------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------Vodapay Gateway Refund---------------"."\Order ID= ".$model->getEchoData()."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\n----------------------------------------------------";
+                        $log_message = "\n----------------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------VodaPay Gateway Refund---------------"."\Order ID= ".$model->getEchoData()."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\n----------------------------------------------------";
                  }
                 }
             } catch (Exception $e) {
                 
                 $message = $e->getMessage();
-                $this->log->write("\n-----------Vodapay Gateway Refund-----------"."\nOrder ID= ".$model->getEchoData()."\nTest= ".strval($test_header)."\nRequest Details= ".$model."\nResponse Details= " .$result."\nError:".$e."\n--------------------------------------------");
+                $this->log->write("\n-----------VodaPay Gateway Refund-----------"."\nOrder ID= ".$model->getEchoData()."\nTest= ".strval($test_header)."\nRequest Details= ".$model."\nResponse Details= " .$result."\nError:".$e."\n--------------------------------------------");
             }
 
             if (!isset($message)){
@@ -317,7 +317,7 @@ class ControllerExtensionPaymentVPG extends Controller
     }
 
     function getTransactionId($order_history) {
-        $comment_vodapay_message = 	"Vodapay payment";
+        $comment_vodapay_message = 	"VodaPay payment";
         foreach ($order_history as $key => $val) {
             if (isset($val['comment'])) {
                 if (strpos($val['comment'], $comment_vodapay_message) !== false) {

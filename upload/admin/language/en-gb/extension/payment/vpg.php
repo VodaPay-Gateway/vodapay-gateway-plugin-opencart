@@ -1,6 +1,6 @@
 <?php
 // Heading
-$_['heading_title'] = 'Vodapay Gateway';
+$_['heading_title'] = 'VodaPay Gateway';
 
 //Environment
 $_['environment_virtual']	= 0;
@@ -9,8 +9,8 @@ $_['environment_prod']	= 2;
 
 // Text
 $_['text_extension'] = 'Extensions';
-$_['text_success'] = 'Success: You have modified Vodapay Gateway!';
-$_['text_edit'] = 'Edit Vodapay Gateway';
+$_['text_success'] = 'Success: You have modified VodaPay Gateway!';
+$_['text_edit'] = 'Edit VodaPay Gateway';
 $_['text_authorization'] = 'Authorization';
 $_['text_evironment_virtual'] = 'Virtual Testing';
 $_['text_evironment_uat'] = 'UAT Testing';
@@ -44,7 +44,7 @@ $_['help_merchant_message_url'] = 'The merchant message';
 $_['help_total'] = 'The checkout total the order must reach before this payment method becomes active';
 
 // Error
-$_['error_permission'] = 'Warning: You do not have permission to modify payment Vodapay Gateway!';
+$_['error_permission'] = 'Warning: You do not have permission to modify payment VodaPay Gateway!';
 $_['error_api'] = 'API is required!';
 
 //Repsonses

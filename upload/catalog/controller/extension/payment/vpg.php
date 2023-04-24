@@ -32,7 +32,7 @@ class ControllerExtensionPaymentVPG extends Controller{
                 $url = null;
                 break;
         }
-        $file = DIR_STORAGE . "logs/VodapayGateway_Logs.txt";
+        $file = DIR_STORAGE . "logs/VodaPayGateway_Logs.txt";
         $data['button_confirm'] = $this->language->get('button_confirm');
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
@@ -119,7 +119,7 @@ class ControllerExtensionPaymentVPG extends Controller{
                      $data['error'] = $this->error;
                      
                  }
-                 $log_message = "\n--------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------Vodapay Gateway---------------"."\nOrder ID= ".$model->getEchoData()."\Customer ID= ".$this->session->data['customer_id']."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\n--------------------------------------------";
+                 $log_message = "\n--------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------VodaPay Gateway---------------"."\nOrder ID= ".$model->getEchoData()."\Customer ID= ".$this->session->data['customer_id']."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\n--------------------------------------------";
                  if (!fileExists($file)) {
                     fopen($file,"w");
                 }
@@ -132,7 +132,7 @@ class ControllerExtensionPaymentVPG extends Controller{
                 }
             } catch (Exception $e) {
                 
-                $this->log->write("\n---------------Vodapay Gateway---------------"."\nOrder ID= ".$model->getEchoData()."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\nError:".$e."\n--------------------------------------------");
+                $this->log->write("\n---------------VodaPay Gateway---------------"."\nOrder ID= ".$model->getEchoData()."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\nError:".$e."\n--------------------------------------------");
             }
         }
         return $this->load->view('extension/payment/vpg', $data);
@@ -161,9 +161,9 @@ class ControllerExtensionPaymentVPG extends Controller{
         $this->load->language('extension/payment/vpg');
         $this->load->model('checkout/order');
 
-        $file = DIR_STORAGE . "logs/VodapayGateway_Logs.txt";
+        $file = DIR_STORAGE . "logs/VodaPayGateway_Logs.txt";
         $results = $_GET;
-        $details = "\n------------------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------Vodapay Gateway Response---------------\n";
+        $details = "\n------------------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------VodaPay Gateway Response---------------\n";
         
         $responseObj = json_decode(base64_decode(isset($results['data'])?$results['data']:$results['?data']));
         $responseCode = $responseObj->responseCode;
@@ -189,7 +189,7 @@ class ControllerExtensionPaymentVPG extends Controller{
                     
                     $success_msg = sprintf(
                         "%s payment completed with Transaction Id of '%s'",
-                        'Vodapay',
+                        'VodaPay',
                         $txnId
                     );
 

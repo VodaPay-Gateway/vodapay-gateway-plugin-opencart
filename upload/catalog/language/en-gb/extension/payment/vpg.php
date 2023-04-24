@@ -5,7 +5,7 @@ $_['environment_uat']	= 1;
 $_['environment_prod']	= 2;
 
 // Text
-$_['text_title']	= 'Vodapay Gateway';
+$_['text_title']	= 'VodaPay Gateway';
 $_['text_testmode']	= 'Warning: The payment gateway is in \'Sandbox Mode\'. Your account will not be charged.';
 $_['text_total']	= 'Shipping, Handling, Discounts & Taxes';
 $_['text_unable']   = 'Unable to locate or update your order status';
