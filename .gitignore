@@ -19,5 +19,5 @@ vqmod/vqcache/*
 vqmod/checked.cache
 vqmod/mods.cache
 
-
-vendor/*
+upload/system/library/vpg/composer.lock
+/upload/system/library/vpg/vendor

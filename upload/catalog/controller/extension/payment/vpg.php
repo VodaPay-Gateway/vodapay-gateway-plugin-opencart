@@ -110,8 +110,8 @@ class ControllerExtensionPaymentVPG extends Controller{
                  if (in_array($responseCode, explode(',',$this->language->get('good_response')))) {
                      //SUCCESS
                      if ($responseCode == "00") {
-                            $data['action'] = $result->getinitiationUrl();
-                            $data['sessionId'] = $result->getsessionId();
+                            $data['action'] = $result->getInitiationUrl();
+                            $data['sessionId'] = $result->getSessionId();
                     }
                  } elseif (in_array($responseCode, explode(',',$this->language->get('bad_response')))) {
                      //FAILURE
@@ -127,7 +127,7 @@ class ControllerExtensionPaymentVPG extends Controller{
                 file_put_contents($file, $log_message, FILE_APPEND);
         
                 }
-                if (null === $result->getinitiationUrl()) {
+                if (null === $result->getInitiationUrl()) {
                     throw new Exception("Initiation Url not populated.");
                 }
             } catch (Exception $e) {
