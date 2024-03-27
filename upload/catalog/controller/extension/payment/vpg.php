@@ -133,7 +133,7 @@ class ControllerExtensionPaymentVPG extends Controller{
                 }
             } catch (Exception $e) {
                 
-                $this->log->write("\n---------------VodaPay Gateway---------------"."\nOrder ID= ".$model->getEchoData()."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\nError:".$e."\n--------------------------------------------");
+                $this->log->write("\n---------------VodaPay Gateway---------------"."\nOrder ID= ".$model->getEchoData()."\nURL= ".$url."\nTest= ".$test_header."\nRetryCount= ".$i."\nRequest Details= ".$model."\nResponse Details= " .$result."\nError:".$e."\n--------------------------------------------");
             }
         }
         return $this->load->view('extension/payment/vpg', $data);
