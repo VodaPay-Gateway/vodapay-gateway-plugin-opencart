@@ -87,9 +87,10 @@ class ControllerExtensionPaymentVPG extends Controller{
             $model = new \VodaPayGatewayClient\Model\VodaPayGatewayPayment($body); // \VodaPayGatewayClient\Model\VodaPayGatewayPaymentComplete | VodaPayGatewayPaymentComplete.
             $api_key = $this->config->get('payment_vpg_api'); // string | The API key.
             try {
+                $i = 0;
 				$worked = false;
 				$result =  new \VodaPayGatewayClient\Model\VodaPayGatewayResponse();
-				for ( $i=0; $i<3 ; $i++) 
+				for ( $i; $i<3 ; $i++) 
 				{
 
                     $result = $apiInstance->payOnceOff($model, $api_key, $test_header);
@@ -119,7 +120,7 @@ class ControllerExtensionPaymentVPG extends Controller{
                      $data['error'] = $this->error;
                      
                  }
-                 $log_message = "\n--------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------VodaPay Gateway---------------"."\nOrder ID= ".$model->getEchoData()."\Customer ID= ".$this->session->data['customer_id']."\nURL= ".$url."\nTest= ".$test_header."\nRequest Details= ".$model."\nResponse Details= " .$result."\n--------------------------------------------";
+                 $log_message = "\n--------------------------------------------\n".date("Y-m-d H:i:s")."\n---------------VodaPay Gateway---------------"."\nOrder ID= ".$model->getEchoData()."\Customer ID= ".$this->session->data['customer_id']."\nURL= ".$url."\nTest= ".$test_header."\nRetryCount= ".$i."\nRequest Details= ".$model."\nResponse Details= " .$result."\n--------------------------------------------";
                  if (!fileExists($file)) {
                     fopen($file,"w");
                 }
