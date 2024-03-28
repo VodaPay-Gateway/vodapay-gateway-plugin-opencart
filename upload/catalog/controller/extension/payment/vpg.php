@@ -89,13 +89,14 @@ class ControllerExtensionPaymentVPG extends Controller{
             try {
                 $i = 0;
 				$worked = false;
+				$response =  new \VodaPayGatewayClient\Model\ApiResultOfVodaPayGatewayResponse();
 				$result =  new \VodaPayGatewayClient\Model\VodaPayGatewayResponse();
 				for ( $i; $i<3 ; $i++) 
 				{
 
-                    $result = $apiInstance->payOnceOff($model, $api_key, $test_header);
+                    $response = $apiInstance->payOnceOff($model, $api_key, $test_header);
                 
-                    if( isset($result)) 
+                    if( isset($response)) 
                     {
                         $worked = TRUE;
                         break;
@@ -106,7 +107,8 @@ class ControllerExtensionPaymentVPG extends Controller{
                     $resultError = error_get_last();
                 }
                 else{
-                
+
+                 $result = $response->getData();               
                  $responseCode = $result->getResponseCode();
                  if (in_array($responseCode, explode(',',$this->language->get('good_response')))) {
                      //SUCCESS
