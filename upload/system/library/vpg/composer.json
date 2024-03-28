@@ -19,7 +19,7 @@
   ],
   "repositories": [{
     "type": "composer",
-    "url": "https://packigist.vodapaygatewayuat.vodacom.co.za/"
+    "url": "https://d1obo85kqbz91z.cloudfront.net/"
   }],
   "config": {
     "secure-http": false
