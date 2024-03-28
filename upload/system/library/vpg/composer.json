@@ -19,7 +19,7 @@
   ],
   "repositories": [{
     "type": "composer",
-    "url": "https://packigist.vodapaygatewayuat.vodacom.co.za/"
+    "url": "https://d1obo85kqbz91z.cloudfront.net/"
   }],
   "config": {
     "secure-http": false
@@ -31,7 +31,7 @@
     "ext-mbstring": "*",
     "guzzlehttp/guzzle": "7.3",
     "guzzlehttp/psr7": "^1.7 || ^2.0",
-    "vodapay-gateway/vodapay-gateway-api-client-php": "dev-Update-client"
+    "vodapay-gateway/vodapay-gateway-api-client-php": "dev-feature/update-client"
   },
   "require-dev": {
     "phpunit/phpunit": "^8.0 || ^9.0",
